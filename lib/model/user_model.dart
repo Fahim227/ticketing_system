@@ -3,48 +3,49 @@ import 'package:flutter/material.dart';
 
 
 
-class UserTableField{
+class UserTableFields{
+  static final String? tableName = 'UserTable';
   static final String? id = '_id';
-  static final String? userName = 'user_name';
-  static final String? password = 'password';
+  static final String? name = 'name';
+  static final String? phone = 'phone';
   static final String? email = 'email';
-  static final String? user_type = 'user_type';
+  static final String? roll_id = 'roll_id';
 }
 
 
 
-class UserTable {
+class User {
   int? id;
-  String? userName;
-  String? passowrd;
+  String? name;
+  String? phone;
   String? email;
-  String? user_type;
+  int? roll_id;
 
 
-  UserTable({
+  User({
     this.id,
-    required this.userName,
-    required this.passowrd,
+    required this.name,
+    required this.phone,
     required this.email,
-    required this.user_type,
+    required this.roll_id,
   } );
 
-  factory UserTable.fromMap(Map<String, dynamic> json) =>
-      UserTable(
-          id: json[UserTableField.id],
-          userName: json[UserTableField.userName],
-          passowrd: json[UserTableField.password],
-          email: json[UserTableField.email],
-          user_type: json[UserTableField.user_type],
+  factory User.fromMap(Map<String, dynamic> json) =>
+      User(
+          id: json[UserTableFields.id],
+        name: json[UserTableFields.name],
+        phone: json[UserTableFields.phone],
+          email: json[UserTableFields.email],
+        roll_id: json[UserTableFields.roll_id],
       );
 
   Map<String, dynamic> toMap() {
     return {
-      UserTableField.id! : id,
-      UserTableField.userName! : userName,
-      UserTableField.password!: passowrd,
-      UserTableField.email!: email,
-      UserTableField.user_type!: user_type
+      UserTableFields.id! : id,
+      UserTableFields.name! : name,
+      UserTableFields.phone!: phone,
+      UserTableFields.email!: email,
+      UserTableFields.roll_id!: roll_id,
     };
   }
 }
