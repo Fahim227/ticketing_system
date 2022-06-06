@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 
 class CustomerFields{
-  static final String? tableName = 'User';
+  static final String? tableName = 'CustomerTable';
   static final String? id = '_id';
   static final String? name = 'name';
   static final String? phone = 'phone';
@@ -27,8 +27,8 @@ class Customer {
     required this.name,
     required this.phone,
     required this.email,
-    required this.customer_type_id,
-  } );
+    this.customer_type_id,
+  });
 
   factory Customer.fromMap(Map<String, dynamic> json) =>
       Customer(

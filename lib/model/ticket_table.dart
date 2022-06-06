@@ -12,6 +12,7 @@ class TicketTableFields{
   static final String? serial_number = 'serial_number';
   static final String? seat_number = 'seat_number';
   static final String? status = 'status';
+  static final String? number_of_tickets = 'number_of_tickets';
 }
 
 
@@ -24,15 +25,18 @@ class Ticket {
   String? serial_number;
   String? seat_number;
   String? status;
+  int? number_of_tickets;
 
 
   Ticket({this.id,
       required this.event_id,
       required this.seat_class,
       required this.price,
-      required this.serial_number,
-      required this.seat_number,
-      required this.status});
+      this.serial_number,
+      this.seat_number,
+      required this.status,
+      this.number_of_tickets
+  });
 
   factory Ticket.fromMap(Map<String, dynamic> json) =>
       Ticket(
@@ -43,6 +47,7 @@ class Ticket {
         serial_number: json[TicketTableFields.serial_number],
         seat_number: json[TicketTableFields.seat_number],
         status: json[TicketTableFields.status],
+        number_of_tickets: json[TicketTableFields.number_of_tickets],
       );
 
   Map<String, dynamic> toMap() {
@@ -54,6 +59,7 @@ class Ticket {
       TicketTableFields.serial_number! :serial_number,
       TicketTableFields.seat_class! :seat_class,
       TicketTableFields.status! :status,
+      TicketTableFields.number_of_tickets! : number_of_tickets,
     };
   }
 }

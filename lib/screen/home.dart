@@ -3,6 +3,8 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:ticketing_system/constraints.dart';
 import 'package:ticketing_system/database/database_helper.dart';
+import 'package:ticketing_system/model/event.dart';
+import 'package:ticketing_system/model/ticket_table.dart';
 import 'package:ticketing_system/roundButton.dart';
 
 class Home extends StatefulWidget {
@@ -17,15 +19,23 @@ class _HomeState extends State<Home> {
 
   Database? _database;
   DatabaseHelper? DBHelper;
-  String? eventName;
-  String? venue;
+  String? title = 'default';
+  String? venue = 'default';
   String? size;
   String? seatType;
   double? prices;
-  String? eventDate;
-  String? eventTime;
-  bool? is_available;
+  String? event_date = 'default';
+  String? event_time = 'default';
+  String? duration = 'default';
+  int? is_approved = 0;
   bool? is_booked;
+  int? user_id = 2;
+  int? total_available_reguler_seat = 2;
+  int? total_available_vip_seat = 2;
+  int? vip_seat_price = 2;
+  int? reguler_seat_price = 2;
+  int? total_vip_seat = 2;
+  int? total_reguler_seat = 2;
 
 
   void _createDB() async {
@@ -35,10 +45,43 @@ class _HomeState extends State<Home> {
   }
 
 
+
+  void insertEvent() async {
+    Event event = Event(user_id: user_id, title: title,
+        venue: venue,
+        event_date: event_date,
+        event_time: event_time,
+        duration: duration,
+        total_available_reguler_seat: total_available_reguler_seat,
+        total_available_vip_seat: total_available_vip_seat,
+        vip_seat_price: vip_seat_price, reguler_seat_price: reguler_seat_price,
+        total_vip_seat: total_vip_seat,
+        total_reguler_seat: total_reguler_seat,
+      is_approved: is_approved,
+    );
+
+    int id = await DatabaseHelper.instance.createEvent(event);
+    print('Event ID: $id');
+  }
+
+  void approveEvent() async {
+    Event event = await DatabaseHelper.instance.getEventBaseOnPK(6);
+    event.is_approved = 1;
+    int id = await DatabaseHelper.instance.approveEvent(6, event);
+    print('Updated ID: $id');
+  }
+  void getBookedAndPurchashedTickets() async {
+    List<Ticket> all = await DatabaseHelper.instance.getBookedAndPurchashedTickets(1);
+    print(all.length);
+  }
+
   @override
   void initState() {
     super.initState();
     _createDB();
+    // approveEvent();
+    //insertEvent();
+    // _createDB();
 
   }
 
@@ -61,7 +104,7 @@ class _HomeState extends State<Home> {
               style: TextStyle(color: Colors.black),
               onChanged: (value) {
                 //Do something with the user input.
-                eventName = value;
+                //eventName = value;
               },
               decoration: kInputDecorations.copyWith(
                   hintText: 'Enter Event Name'
@@ -92,7 +135,7 @@ class _HomeState extends State<Home> {
               style: TextStyle(color: Colors.black),
               onChanged: (value) {
                 //Do something with the user input.
-                size = value;
+                //size = value;
               },
               decoration: kInputDecorations.copyWith(
                   hintText: 'Enter size'
@@ -106,7 +149,7 @@ class _HomeState extends State<Home> {
               style: TextStyle(color: Colors.black),
               onChanged: (value) {
                 //Do something with the user input.
-                seatType = value;
+                //seatType = value;
               },
               decoration: kInputDecorations.copyWith(
                   hintText: 'Enter SeatType'
@@ -120,7 +163,7 @@ class _HomeState extends State<Home> {
               style: TextStyle(color: Colors.black),
               onChanged: (value) {
                 //Do something with the user input.
-                prices = double.parse(value);
+                //prices = double.parse(value);
               },
               decoration: kInputDecorations.copyWith(
                   hintText: 'Enter prices'
@@ -134,7 +177,7 @@ class _HomeState extends State<Home> {
               style: TextStyle(color: Colors.black),
               onChanged: (value) {
                 //Do something with the user input.
-                eventDate = value;
+                //eventDate = value;
               },
               decoration: kInputDecorations.copyWith(
                   hintText: 'Enter Event Date'
@@ -148,7 +191,7 @@ class _HomeState extends State<Home> {
               style: TextStyle(color: Colors.black),
               onChanged: (value) {
                 //Do something with the user input.
-                eventTime = value;
+                //eventTime = value;
               },
               decoration: kInputDecorations.copyWith(
                   hintText: 'Enter Event Time'

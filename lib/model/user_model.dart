@@ -27,7 +27,7 @@ class User {
     required this.name,
     required this.phone,
     required this.email,
-    required this.roll_id,
+    this.roll_id,
   } );
 
   factory User.fromMap(Map<String, dynamic> json) =>
