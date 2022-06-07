@@ -74,15 +74,22 @@ class _HomeState extends State<Home> {
     List<Ticket> all = await DatabaseHelper.instance.getBookedAndPurchashedTickets(1);
     print(all.length);
   }
+  void func() async{
+
+    int price = 100;
+    String seat_number = '1' + ' to ' + '3';
+    Ticket ticket = Ticket(event_id: 7, seat_class: 'reguler', price: price,seat_number: seat_number, status: 'book'.toLowerCase() == 'book' ? 'Payment Pending':'Payment Complete',number_of_tickets: 10);
+    int res = await DatabaseHelper.instance.insertTicket(ticket, 'book', 1);
+    print(res);
+  }
+
 
   @override
   void initState() {
     super.initState();
-    _createDB();
     // approveEvent();
     //insertEvent();
     // _createDB();
-
   }
 
 

@@ -9,6 +9,7 @@ class CustomerFields{
   static final String? name = 'name';
   static final String? phone = 'phone';
   static final String? email = 'email';
+  static final String? password = 'password';
   static final String? customer_type_id = 'customer_type_id';
 }
 
@@ -19,7 +20,8 @@ class Customer {
   String? name;
   String? phone;
   String? email;
-  int? customer_type_id;
+  String? password;
+  String? customer_type_id;
 
 
   Customer({
@@ -27,6 +29,7 @@ class Customer {
     required this.name,
     required this.phone,
     required this.email,
+    required this.password,
     this.customer_type_id,
   });
 
@@ -36,7 +39,8 @@ class Customer {
         name: json[CustomerFields.name],
         phone: json[CustomerFields.phone],
         email: json[CustomerFields.email],
-          customer_type_id:json[CustomerFields.customer_type_id]
+          customer_type_id:json[CustomerFields.customer_type_id],
+          password:json[CustomerFields.password]
       );
 
   Map<String, dynamic> toMap() {
@@ -46,6 +50,7 @@ class Customer {
       CustomerFields.phone!: phone,
       CustomerFields.email!: email,
       CustomerFields.customer_type_id!: customer_type_id,
+      CustomerFields.password!: password,
     };
   }
 }

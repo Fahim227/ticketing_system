@@ -34,3 +34,8 @@ var kInputDecorations = InputDecoration(
     borderRadius: BorderRadius.all(Radius.circular(32.0)),
   ),
 );
+
+var textStyle = TextStyle(
+  color: Colors.black,
+  fontSize: 25.0,
+);

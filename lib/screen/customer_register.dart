@@ -11,9 +11,9 @@ class RegisterCustomer extends StatelessWidget {
   String? customer_id;
 
   void createCustomer() async {
-    Customer customer = Customer(name: name, phone: phone, email: email);
-    int id = await DatabaseHelper.instance.insertCustomer(customer, type!);
-    customer_id = id.toString();
+    // Customer customer = Customer(name: name, phone: phone, email: email);
+    // int id = await DatabaseHelper.instance.insertCustomer(customer, type!);
+    // customer_id = id.toString();
 
   }
 

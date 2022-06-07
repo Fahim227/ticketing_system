@@ -57,6 +57,7 @@ class Ticket {
       TicketTableFields.seat_class! :seat_class,
       TicketTableFields.price! :price,
       TicketTableFields.serial_number! :serial_number,
+      TicketTableFields.seat_number! :seat_number,
       TicketTableFields.seat_class! :seat_class,
       TicketTableFields.status! :status,
       TicketTableFields.number_of_tickets! : number_of_tickets,

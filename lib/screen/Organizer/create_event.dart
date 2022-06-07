@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:ticketing_system/constraints.dart';
 import 'package:ticketing_system/database/database_helper.dart';
 import 'package:ticketing_system/model/event.dart';
+import 'package:ticketing_system/roundButton.dart';
 
 class CreateEvent extends StatelessWidget {
   int? userId;
   CreateEvent({required this.userId});
 
+  static final String id = '/createEvent';
   Database? _database;
   DatabaseHelper? DBHelper;
   String? title = 'default';
@@ -53,6 +56,146 @@ class CreateEvent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(title: Text('Create An Event'),),
+      body: SingleChildScrollView(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              TextField(
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) {
+                  title = value;
+                },
+                decoration: kInputDecorations.copyWith(hintText: 'Enter Title'),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              TextField(
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) {
+                  venue = value;
+                },
+                decoration: kInputDecorations.copyWith(hintText: 'Enter Venue'),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              TextField(
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) {
+                  event_date = value;
+                },
+                decoration: kInputDecorations.copyWith(hintText: 'Enter event_date'),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              TextField(
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) {
+                  event_time = value;
+                },
+                decoration: kInputDecorations.copyWith(hintText: 'Enter event_time'),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              TextField(
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) {
+                  duration = value;
+                },
+                decoration: kInputDecorations.copyWith(hintText: 'Enter duration(in Hour)'),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              // TextField(
+              //   style: TextStyle(color: Colors.black),
+              //   onChanged: (value) {
+              //     total_available_reguler_seat = int.parse(value);
+              //   },
+              //   decoration: kInputDecorations.copyWith(hintText: 'Enter total_available_reguler_seat'),
+              // ),
+              // SizedBox(
+              //   height: 10.0,
+              // ),
+              // TextField(
+              //   style: TextStyle(color: Colors.black),
+              //   onChanged: (value) {
+              //     total_available_vip_seat = int.parse(value);
+              //   },
+              //   decoration: kInputDecorations.copyWith(hintText: 'Enter total_available_vip_seat'),
+              // ),
+              SizedBox(
+                height: 10.0,
+              ),
+              TextField(
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) {
+                  total_reguler_seat = int.parse(value);
+                },
+                decoration: kInputDecorations.copyWith(hintText: 'Enter total_reguler_seat'),
+              ),
+              SizedBox(
+                  height: 10.0,
+              ),
+              TextField(
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) {
+                  reguler_seat_price = int.parse(value);
+                },
+                decoration: kInputDecorations.copyWith(hintText: 'Enter reguler_seat_price'),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              TextField(
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) {
+                  //Do something with the user input.
+                  total_vip_seat = int.parse(value);
+
+                },
+                decoration:
+                kInputDecorations.copyWith(hintText: 'Enter total_vip_seat'),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              TextField(
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) {
+                  //Do something with the user input.
+                  vip_seat_price = int.parse(value);
+
+                },
+                decoration:
+                kInputDecorations.copyWith(hintText: 'Enter vip_seat_price'),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+
+              RoundedButton(
+                  title: 'Create Event',
+                  color: Colors.lightBlue,
+                  onPress: () async {
+                    total_available_vip_seat = total_vip_seat;
+                    total_available_reguler_seat = total_reguler_seat;
+
+                    Event event = Event(user_id: user_id, title: title, venue: venue, event_date: event_date, event_time: event_time, duration: duration, total_available_reguler_seat: total_available_reguler_seat, total_available_vip_seat: total_available_vip_seat, vip_seat_price: vip_seat_price, reguler_seat_price: reguler_seat_price, total_vip_seat: total_vip_seat, total_reguler_seat: total_reguler_seat);
+                    print(event.total_available_reguler_seat);
+                    print(event.total_available_vip_seat);
+                    event.is_approved = 0;
+                    int event_id = await DatabaseHelper.instance.createEvent(event);
+                    print(event_id);
+                  }),
+            ]),
+      ),
+    );
   }
 }

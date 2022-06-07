@@ -39,7 +39,9 @@ class Event {
   int? reguler_seat_price;
 
 
-  Event({this.id, required this.user_id, required this.title,
+  Event({this.id,
+    required this.user_id,
+    required this.title,
     required this.venue,
     required this.event_date,
     required this.event_time,

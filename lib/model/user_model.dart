@@ -9,6 +9,7 @@ class UserTableFields{
   static final String? name = 'name';
   static final String? phone = 'phone';
   static final String? email = 'email';
+  static final String? password = 'password';
   static final String? roll_id = 'roll_id';
 }
 
@@ -20,6 +21,7 @@ class User {
   String? phone;
   String? email;
   int? roll_id;
+  String? password;
 
 
   User({
@@ -28,6 +30,7 @@ class User {
     required this.phone,
     required this.email,
     this.roll_id,
+    required this.password
   } );
 
   factory User.fromMap(Map<String, dynamic> json) =>
@@ -37,6 +40,7 @@ class User {
         phone: json[UserTableFields.phone],
           email: json[UserTableFields.email],
         roll_id: json[UserTableFields.roll_id],
+        password: json[UserTableFields.password],
       );
 
   Map<String, dynamic> toMap() {
@@ -46,6 +50,7 @@ class User {
       UserTableFields.phone!: phone,
       UserTableFields.email!: email,
       UserTableFields.roll_id!: roll_id,
+      UserTableFields.password!: password,
     };
   }
 }
