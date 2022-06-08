@@ -6,6 +6,7 @@ import 'package:ticketing_system/screen/AdminScreen/all_event_request.dart';
 import 'package:ticketing_system/screen/CustomerScreen/all_events.dart';
 import 'package:ticketing_system/screen/Organizer/create_event.dart';
 import 'package:ticketing_system/screen/user_register.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginAsAdminOrOrganizer extends StatefulWidget {
   LoginAsAdminOrOrganizer({required this.category});
@@ -35,6 +36,7 @@ class _LoginAsAdminOrOrganizerState extends State<LoginAsAdminOrOrganizer> {
     void checkForAuthentication() async {}
 
     return Scaffold(
+      appBar: AppBar(title: Text('Login'),),
       backgroundColor: Colors.white,
       body: widget.category!.toLowerCase() == 'adminororganizer' ?
       Padding(
@@ -103,15 +105,38 @@ class _LoginAsAdminOrOrganizerState extends State<LoginAsAdminOrOrganizer> {
                   print(email);
                   int response = await DatabaseHelper.instance
                       .checkAuthentication(email!, password!, dropdownvalue!);
+                  print('Check res:   '+response.toString());
                   if (response > 0) {
                     print(response);
                     setState(() {
                       is_authenticated = true;
                     });
                   }
-                  if (is_authenticated = true) {
+                  if (response > 0) {
                     print('Check is Authenticated: ' +
                         is_authenticated.toString());
+                    var fToast = FToast();
+                    fToast.init(context);
+                    fToast.showToast(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25.0),
+                          color: Colors.greenAccent,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.done),
+                            SizedBox(
+                              width: 12.0,
+                            ),
+                            Text("Authorization Successful"),
+                          ],
+                        ),),
+                      gravity: ToastGravity.BOTTOM,
+                      toastDuration: Duration(seconds: 2),
+                    );
                     if (dropdownvalue!.toLowerCase() == 'admin') {
                       // Navigate to Event Request page
                       Navigator.push(context, MaterialPageRoute<void>(
@@ -126,6 +151,31 @@ class _LoginAsAdminOrOrganizerState extends State<LoginAsAdminOrOrganizer> {
                       ),
                       );
                     }
+                  }
+                  else{
+                    var fToast = FToast();
+                    fToast.init(context);
+                    fToast.showToast(
+                      child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25.0),
+                            color: Colors.greenAccent,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.no_accounts_outlined),
+                              SizedBox(
+                                width: 12.0,
+                              ),
+                              Text("You Are Not Authorize"),
+                            ],
+                          ),),
+                      gravity: ToastGravity.BOTTOM,
+                      toastDuration: Duration(seconds: 2),
+                    );
+
                   }
                 }
             ),
@@ -218,7 +268,29 @@ class _LoginAsAdminOrOrganizerState extends State<LoginAsAdminOrOrganizer> {
                       is_authenticated = true;
                     });
                   }
-                  if (is_authenticated = true) {
+                  if (response > 0) {
+                    var fToast = FToast();
+                    fToast.init(context);
+                    fToast.showToast(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25.0),
+                          color: Colors.greenAccent,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.done),
+                            SizedBox(
+                              width: 12.0,
+                            ),
+                            Text("Authorization Successful"),
+                          ],
+                        ),),
+                      gravity: ToastGravity.BOTTOM,
+                      toastDuration: Duration(seconds: 2),
+                    );
                     print('Check is Authenticated: ' +
                         is_authenticated.toString());
                     Navigator.push(context, MaterialPageRoute<void>(
@@ -231,6 +303,31 @@ class _LoginAsAdminOrOrganizerState extends State<LoginAsAdminOrOrganizer> {
                     // } else {
                     //   // Navigate to Event Create page
                     // }
+                  }
+                  else{
+                    var fToast = FToast();
+                    fToast.init(context);
+                    fToast.showToast(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25.0),
+                          color: Colors.greenAccent,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.no_accounts_outlined),
+                            SizedBox(
+                              width: 12.0,
+                            ),
+                            Text("You Are Not Authorize"),
+                          ],
+                        ),),
+                      gravity: ToastGravity.BOTTOM,
+                      toastDuration: Duration(seconds: 2),
+                    );
+
                   }
                 }
             ),

@@ -67,19 +67,30 @@ class _AllEventRequestState extends State<AllEventRequest> {
                             //   ),);
                             // },
                             onLongPress: () async {
-                              int res = await DatabaseHelper.instance.deleteEvent(snapshot.data![idx].id!);
-                              print(res);
-                              setState((){});
-
+                              // int res = await DatabaseHelper.instance.deleteEvent(snapshot.data![idx].id!);
+                              // print(res);
+                              // setState((){});
                             },
                             title: Text(snapshot.data![idx].title == null ? 'Null': snapshot.data![idx].title!),
                             subtitle:  Text(snapshot.data![idx].venue == null ? 'Null': 'Venue: '+snapshot.data![idx].venue!),
-                            trailing: FlatButton(color: Colors.green,child: Text('Accept'),onPressed: () async {
-                              snapshot.data![idx].is_approved = 1;
-                              int res = await DatabaseHelper.instance.approveEvent(snapshot.data![idx].id!, snapshot.data![idx]);
-                              print(res);
-                              setState((){});
-                            },),
+                            trailing: Column(
+                              children: [
+                                Expanded(
+                                  child: FlatButton(color: Colors.green,child: Text('Accept'),onPressed: () async {
+                                    snapshot.data![idx].is_approved = 1;
+                                    int res = await DatabaseHelper.instance.approveEvent(snapshot.data![idx].id!, snapshot.data![idx]);
+                                    print(res);
+                                    setState((){});
+                                  },),
+                                ),
+                                SizedBox(height: 10,),
+                                Expanded(child: FlatButton(color: Colors.redAccent,child: Text('Decline'),onPressed: () async {
+                                  int res = await DatabaseHelper.instance.deleteEvent(snapshot.data![idx].id!);
+                                  print(res);
+                                  setState((){});
+                                },),)
+                              ],
+                            )
                           ),
                         );
                       },

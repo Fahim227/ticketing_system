@@ -47,21 +47,28 @@ class _HomeState extends State<Home> {
 
 
   void insertEvent() async {
-    Event event = Event(user_id: user_id, title: title,
-        venue: venue,
-        event_date: event_date,
-        event_time: event_time,
-        duration: duration,
-        total_available_reguler_seat: total_available_reguler_seat,
-        total_available_vip_seat: total_available_vip_seat,
-        vip_seat_price: vip_seat_price, reguler_seat_price: reguler_seat_price,
-        total_vip_seat: total_vip_seat,
-        total_reguler_seat: total_reguler_seat,
-      is_approved: is_approved,
-    );
+    // Event event = Event(user_id: user_id, title: title,
+    //     venue: venue,
+    //     event_date: event_date,
+    //     event_time: event_time,
+    //     duration: duration,
+    //     total_available_reguler_seat: total_available_reguler_seat,
+    //     total_available_vip_seat: total_available_vip_seat,
+    //     vip_seat_price: vip_seat_price, reguler_seat_price: reguler_seat_price,
+    //     total_vip_seat: total_vip_seat,
+    //     total_reguler_seat: total_reguler_seat,
+    //   is_approved: is_approved,
+    // );
 
-    int id = await DatabaseHelper.instance.createEvent(event);
-    print('Event ID: $id');
+    Event event = Event(user_id: 1, title: 'title', venue: 'venue', event_date: 'event_date', event_time: 'event_time', duration: 'duration', total_available_reguler_seat: 1, total_available_vip_seat: 1,
+        vip_seat_price: 1,
+        reguler_seat_price: 1,
+        total_vip_seat: 1,
+        total_reguler_seat: 1);
+    await DatabaseHelper.instance.createEvent(event, 'a1,a2,a3,a5,a6', 'a1,a2,a3,a5,a6');
+
+    // int id = await DatabaseHelper.instance.createEvent(event);
+    // print('Event ID: $id');
   }
 
   void approveEvent() async {
@@ -87,9 +94,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    // approveEvent();
-    //insertEvent();
-    // _createDB();
+    insertEvent();
   }
 
 

@@ -1,5 +1,6 @@
 
 
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -7,6 +8,7 @@ import 'package:ticketing_system/model/booked_ticket_model.dart';
 import 'package:ticketing_system/model/customer_model.dart';
 import 'package:ticketing_system/model/customer_type.dart';
 import 'package:ticketing_system/model/event.dart';
+import 'package:ticketing_system/model/seats_table.dart';
 import 'package:ticketing_system/model/sold_ticket.dart';
 import 'package:ticketing_system/model/ticket_table.dart';
 import 'package:ticketing_system/model/user_model.dart';
@@ -38,7 +40,7 @@ class DatabaseHelper {
   Future<Database> _initDB() async {
     String directoryPath = await getDatabasesPath();
     String path = join(directoryPath, DatabaseHelper.dbName);
-    return await openDatabase(path, version: 16, onCreate: _createDatabase,onUpgrade:(Database? db, int oldVersion, int newVersion) {
+    return await openDatabase(path, version: 17, onCreate: _createDatabase,onUpgrade:(Database? db, int oldVersion, int newVersion) {
       print(newVersion);
       if (oldVersion < newVersion) {
         // you can execute drop table and create table
@@ -72,9 +74,10 @@ class DatabaseHelper {
     String addNumberOfTickets =  'ALTER TABLE ${TicketTableFields.tableName!} ADD ${TicketTableFields.number_of_tickets} INTEGER;';
     String addPasswordToUser =  'ALTER TABLE ${UserTableFields.tableName!} ADD ${UserTableFields.password} TEXT;';
     String addPasswordToCustomer =  'ALTER TABLE ${CustomerFields.tableName!} ADD ${CustomerFields.password} TEXT;';
+    String addSeatTable = 'CREATE TABLE ${SeatNumberFields.tableName!} (${SeatNumberFields.id} INTEGER PRIMARY KEY, ${SeatNumberFields.event_id} INTEGER, ${SeatNumberFields.seat_class} TEXT,${SeatNumberFields.seat_number} TEXT, ${SeatNumberFields.status} INTEGER,  FOREIGN KEY (${SeatNumberFields.event_id}) REFERENCES ${EventTableFields.tableName}(${EventTableFields.id}) )';
+    print(addSeatTable);
 
-    await db!.execute(addPasswordToUser);
-    await db!.execute(addPasswordToCustomer);
+    await db!.execute(addSeatTable);
 
 
     // await db!.rawQuery(addReguler);
@@ -151,70 +154,103 @@ class DatabaseHelper {
     return user_id;
   }
 
-  Future<int> createEvent(Event event) async {
+  Future<int> createEvent(Event event,String vipSeats, String regulerSeats) async {
+    List<String> vSeats = vipSeats.split(",");
+    List<String> rSeats = regulerSeats.split(",");
+
     Database? db = await instance.database;
     int event_id = await db!.insert(EventTableFields.tableName!, event.toMap());
+    // Create Seat Object using for loop
+    for (String seat in vSeats){
+      SeatTable seatTable = SeatTable(event_id: event_id, seat_class: 'vip', seat_number: seat, status: 0);
+      int seat_id = await db!.insert(SeatNumberFields.tableName!, seatTable.toMap());
+
+    }
+    for (String seat in rSeats){
+      SeatTable seatTable = SeatTable(event_id: event_id, seat_class: 'reguler', seat_number: seat, status: 0);
+      int seat_id = await db!.insert(SeatNumberFields.tableName!, seatTable.toMap());
+    }
+
+
+
+
     return event_id;
+  }
+
+  Future<int> bookSeat(int event_id,String n) async {
+    Database? db = await instance.database;
+    String query = "SELECT * FROM ${SeatNumberFields.tableName!} WHERE ${SeatNumberFields.event_id!} = $event_id AND seat_number = '$n';";
+    List<Map<String, dynamic>> map = await db!.rawQuery(query);
+    List<SeatTable> seats = map.map((e) => SeatTable.fromMap(e)).toList();
+    seats[0].status = 1;
+    return await db!.update(SeatNumberFields.tableName!, seats[0].toMap(),where: '_id = ?',whereArgs: [seats[0].id]);
   }
 
   Future<int> insertTicket(Ticket ticket,String action,int customer_id) async{
     Database? db = await instance.database;
-    if(action.toLowerCase() == 'book'){
-      int ticket_id = await  db!.insert(TicketTableFields.tableName!, ticket.toMap());
+    int res = await bookSeat(ticket.event_id!, ticket.seat_number!);
+    print('Book Seat: $res');
+    bool isSeatAvailable = await isAvailableSeatClass(ticket.seat_class!,ticket.event_id!,ticket.number_of_tickets!);
+    print("Is Ticket Available: "+isSeatAvailable.toString());
+    if ( isSeatAvailable == true){
+      if(action.toLowerCase() == 'book'){
+        int ticket_id = await  db!.insert(TicketTableFields.tableName!, ticket.toMap());
 
-      String finalDateToPucrchase = '09/09/2022';
-      BookedTicketTable bookedTicketTable = BookedTicketTable(customer_id: customer_id, ticket_id: ticket_id, event_id: ticket.event_id, finalDateToPucrchase: finalDateToPucrchase);
-      int booked_id = await db!.insert(BookedTicketTableFields.tableName!, bookedTicketTable.toMap());
+        String finalDateToPucrchase = '09/09/2022';
+        BookedTicketTable bookedTicketTable = BookedTicketTable(customer_id: customer_id, ticket_id: ticket_id, event_id: ticket.event_id, finalDateToPucrchase: finalDateToPucrchase);
+        int booked_id = await db!.insert(BookedTicketTableFields.tableName!, bookedTicketTable.toMap());
+        List<Map<String, dynamic>> data = await db!.rawQuery('SELECT * FROM ${EventTableFields.tableName!} WHERE ${EventTableFields.id} = ${ticket.event_id}');
+        List<Event> events = data.map((e) => Event.fromMap(e)).toList();
+        print ('Events:   ${events.length}');
+        if (ticket.seat_class!.toLowerCase() == 'vip'){
+          events[0].total_available_vip_seat =events[0].total_available_vip_seat! - ticket.number_of_tickets!;
+          int response = await db!.update(EventTableFields.tableName!,events[0].toMap(), where: '_id = ?',whereArgs: [ticket.event_id]);
+          print('Update Esponse: $response');
+        }
+        else{
+          events[0].total_available_reguler_seat =events[0].total_available_reguler_seat! - ticket.number_of_tickets!;
+          int response = await db!.update(EventTableFields.tableName!,events[0].toMap(), where: '_id = ?',whereArgs: [ticket.event_id]);
+          print(ticket.event_id);
+          print('Update Esponse: $response');
+
+        }
+        await db!.update(EventTableFields.tableName!,events[0].toMap(), where: '_id = ?',whereArgs: [events[0].id]);
+        return booked_id;
+      }
+      int ticket_id = await  db!.insert(TicketTableFields.tableName!, ticket.toMap());
+      SoldTicket soldTicket = SoldTicket(customer_id: customer_id, ticket_id: ticket_id, event_id: ticket.event_id, date: DateTime.now().toString(),total_price: ticket.price );
+      int soldTicket_id = await db!.insert(SoldTicketFields.tableName!, soldTicket.toMap());
       List<Map<String, dynamic>> data = await db!.rawQuery('SELECT * FROM ${EventTableFields.tableName!} WHERE ${EventTableFields.id} = ${ticket.event_id}');
       List<Event> events = data.map((e) => Event.fromMap(e)).toList();
-      print('Events:   ${events.length}');
       if (ticket.seat_class!.toLowerCase() == 'vip'){
-        events[0].total_available_vip_seat =events[0].total_available_vip_seat! - ticket.number_of_tickets!;
+        events[0].total_available_vip_seat =events[0].total_available_vip_seat!  - ticket.number_of_tickets!;
         int response = await db!.update(EventTableFields.tableName!,events[0].toMap(), where: '_id = ?',whereArgs: [ticket.event_id]);
         print('Update Esponse: $response');
       }
       else{
-        events[0].total_available_reguler_seat =events[0].total_available_reguler_seat! - ticket.number_of_tickets!;
+        events[0].total_available_reguler_seat =events[0].total_available_reguler_seat!  - ticket.number_of_tickets!;
         int response = await db!.update(EventTableFields.tableName!,events[0].toMap(), where: '_id = ?',whereArgs: [ticket.event_id]);
-        print(ticket.event_id);
         print('Update Esponse: $response');
 
       }
-      await db!.update(EventTableFields.tableName!,events[0].toMap(), where: '_id = ?',whereArgs: [events[0].id]);
-      return booked_id;
+      return soldTicket_id;
     }
-    int ticket_id = await  db!.insert(TicketTableFields.tableName!, ticket.toMap());
-    SoldTicket soldTicket = SoldTicket(customer_id: customer_id, ticket_id: ticket_id, event_id: ticket.event_id, date: DateTime.now().toString(),total_price: ticket.price );
-    int soldTicket_id = await db!.insert(SoldTicketFields.tableName!, soldTicket.toMap());
-    List<Map<String, dynamic>> data = await db!.rawQuery('SELECT * FROM ${EventTableFields.tableName!} WHERE ${EventTableFields.id} = ${ticket.event_id}');
-    List<Event> events = data.map((e) => Event.fromMap(e)).toList();
-    if (ticket.seat_class!.toLowerCase() == 'vip'){
-      events[0].total_available_vip_seat =events[0].total_available_vip_seat!  - ticket.number_of_tickets!;
-      int response = await db!.update(EventTableFields.tableName!,events[0].toMap(), where: '_id = ?',whereArgs: [ticket.event_id]);
-      print('Update Esponse: $response');
-    }
-    else{
-      events[0].total_available_reguler_seat =events[0].total_available_reguler_seat!  - ticket.number_of_tickets!;
-      int response = await db!.update(EventTableFields.tableName!,events[0].toMap(), where: '_id = ?',whereArgs: [ticket.event_id]);
-      print('Update Esponse: $response');
-
-    }
-    return soldTicket_id;
+    return -1;
 
   }
 
   
   Future<List<Ticket>> getBookedAndPurchashedTickets(int event_id) async {
     Database? db = await instance.database;
-    String purchashedSQL = 'Select * from ${TicketTableFields.tableName!} where ${TicketTableFields.id} in (SELECT ${SoldTicketFields.ticket_id} from ${SoldTicketFields.tableName!} where ${SoldTicketFields.event_id} = $event_id);';
+    String purchashedSQL = 'Select * from ${TicketTableFields.tableName!} where ${TicketTableFields.id} in (SELECT ${SoldTicketFields.ticket_id} from ${SoldTicketFields.tableName!} where ${SoldTicketFields.event_id} = $event_id) AND seat_number IS NOT NULL;';
     print(purchashedSQL);
 
-    String bookedSQL = 'Select * from ${TicketTableFields.tableName!} where ${TicketTableFields.id} in (SELECT ${BookedTicketTableFields.ticket_id} from ${BookedTicketTableFields.tableName!} where ${BookedTicketTableFields.event_id} = $event_id);';
+    String bookedSQL = 'Select * from ${TicketTableFields.tableName!} where ${TicketTableFields.id} in (SELECT ${BookedTicketTableFields.ticket_id} from ${BookedTicketTableFields.tableName!} where ${BookedTicketTableFields.event_id} = $event_id) AND seat_number IS NOT NULL;';
     print(bookedSQL);
     List<Map<String,dynamic>> purchashedData = await db!.rawQuery(purchashedSQL);
     List<Map<String,dynamic>> bookedData = await db!.rawQuery(bookedSQL);
     List<Ticket> allSoldTicket = purchashedData.map((e) => Ticket.fromMap(e)).toList();
-    List<Ticket> allBookedTicket = purchashedData.map((e) => Ticket.fromMap(e)).toList();
+    List<Ticket> allBookedTicket = bookedData.map((e) => Ticket.fromMap(e)).toList();
     List<Ticket> newList = new List.from(allSoldTicket)..addAll(allBookedTicket);
 
     return newList;
@@ -253,7 +289,9 @@ class DatabaseHelper {
     Database? db =  await DatabaseHelper.instance.database;
     if(category.toLowerCase() == 'admin' || category.toLowerCase() == 'organizer'){
       String query = "SELECT * FROM UserTable WHERE ${UserTableFields.email} = '$email' AND ${UserTableFields.roll_id} = (SELECT _id FROM ${UserRollFields.tableName} WHERE ${UserRollFields.roll} = '$category'); ";
-      List<Map<String, dynamic>> data = await db!.rawQuery(query);
+      String Anotherquery = "SELECT * FROM UserTable WHERE ${UserTableFields.email} = '$email'; ";
+      print(query);
+      List<Map<String, dynamic>> data = await db!.rawQuery(Anotherquery);
       List<User> users = data.map((e) => User.fromMap(e)).toList();
       if (users.length <= 0){
         return 0;
@@ -295,6 +333,22 @@ class DatabaseHelper {
     }
     return -1;
   }
+
+  Future<List<SeatTable>> getVIPAvailableSeats(int event_id) async {
+    Database? db =  await DatabaseHelper.instance.database;
+    String query = "SELECT * FROM ${SeatNumberFields.tableName!} WHERE ${SeatNumberFields.event_id} = $event_id  AND ${SeatNumberFields.seat_class} = 'vip' AND ${SeatNumberFields.status} = 0";
+    List<Map<String,dynamic>> SeatList = await db!.rawQuery(query);
+    List<SeatTable> vipSeats = SeatList.map((e) => SeatTable.fromMap(e)).toList();
+    return vipSeats;
+  }
+  Future<List<SeatTable>> getRegulerAvailableSeats(int event_id) async {
+    Database? db =  await DatabaseHelper.instance.database;
+    String query = "SELECT * FROM ${SeatNumberFields.tableName!} WHERE ${SeatNumberFields.event_id} = $event_id  AND ${SeatNumberFields.seat_class} = 'reguler' AND ${SeatNumberFields.status} = 0 ";
+    List<Map<String,dynamic>> SeatList = await db!.rawQuery(query);
+    List<SeatTable> regulerSeats = SeatList.map((e) => SeatTable.fromMap(e)).toList();
+    return regulerSeats;
+  }
+
   Future<bool> isAvailableSeatClass(String seatClass,int event_id,int number_of_seat) async {
     Database? db =  await DatabaseHelper.instance.database;
     List<Map<String, dynamic>> eventInJson = await db!.rawQuery('SELECT * FROM Event WHERE _id = $event_id');

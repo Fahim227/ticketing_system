@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ticketing_system/constraints.dart';
 import 'package:ticketing_system/database/database_helper.dart';
 import 'package:ticketing_system/model/customer_model.dart';
 import 'package:ticketing_system/model/user_model.dart';
 import 'package:ticketing_system/roundButton.dart';
+import 'package:ticketing_system/screen/CustomerScreen/all_events.dart';
+import 'package:ticketing_system/screen/Organizer/create_event.dart';
 
 class RegisterUser extends StatefulWidget {
 
@@ -43,6 +46,62 @@ class _RegisterUserState extends State<RegisterUser> {
         registerd = true;
       });
     }
+
+    if (id! > 0) {
+      var fToast = FToast();
+      fToast.init(context);
+      fToast.showToast(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25.0),
+            color: Colors.greenAccent,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.no_accounts_outlined),
+              SizedBox(
+                width: 12.0,
+              ),
+              Text("You Account Created"),
+            ],
+          ),),
+        gravity: ToastGravity.BOTTOM,
+        toastDuration: Duration(seconds: 2),
+      );
+
+      Navigator.push(context, MaterialPageRoute<void>(
+        // Action 0 => update, Action 1 => save
+          builder: (BuildContext context) =>  CreateEvent(userId: id)
+      ),
+      );
+    }
+    else{
+      var fToast = FToast();
+      fToast.init(context);
+      fToast.showToast(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25.0),
+            color: Colors.red,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.no_accounts_outlined),
+              SizedBox(
+                width: 12.0,
+              ),
+              Text("You Account Not Created"),
+            ],
+          ),),
+        gravity: ToastGravity.BOTTOM,
+        toastDuration: Duration(seconds: 2),
+      );
+
+    }
     // user_id = id.toString();
   }
   void registerCustomer() async {
@@ -54,6 +113,62 @@ class _RegisterUserState extends State<RegisterUser> {
       setState(() {
         registerd = true;
       });
+    }
+
+    if (id! > 0) {
+      var fToast = FToast();
+      fToast.init(context);
+      fToast.showToast(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25.0),
+            color: Colors.greenAccent,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.no_accounts_outlined),
+              SizedBox(
+                width: 12.0,
+              ),
+              Text("You Account Created"),
+            ],
+          ),),
+        gravity: ToastGravity.BOTTOM,
+        toastDuration: Duration(seconds: 2),
+      );
+
+      Navigator.push(context, MaterialPageRoute<void>(
+        // Action 0 => update, Action 1 => save
+          builder: (BuildContext context) =>  AllEvents(customer_id: id)
+      ),
+      );
+    }
+    else{
+      var fToast = FToast();
+      fToast.init(context);
+      fToast.showToast(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25.0),
+            color: Colors.red,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.no_accounts_outlined),
+              SizedBox(
+                width: 12.0,
+              ),
+              Text("You Account Not Created"),
+            ],
+          ),),
+        gravity: ToastGravity.BOTTOM,
+        toastDuration: Duration(seconds: 2),
+      );
+
     }
     // user_id = id.toString();
   }
@@ -153,7 +268,7 @@ class _RegisterUserState extends State<RegisterUser> {
                 },
               ),
               RoundedButton(
-                  title: 'Log In',
+                  title: 'Create Account',
                   color: Colors.lightBlue,
                   onPress: () async {
                     registerCustomer();

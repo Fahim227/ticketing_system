@@ -31,26 +31,12 @@ class ListOfNotAvailableTickets extends StatelessWidget {
                       itemBuilder: (BuildContext context, int idx){
                         return Card(
                           child: ListTile(
-                            onTap: (){
-                            },
-                            // onLongPress: () async {
-                            //   int res = await DatabaseHelper.instance.deleteEvent(snapshot.data![idx].id!);
-                            //   print(res);
-                            //
-                            // },
                             title: Text(snapshot.data![idx].seat_number == null ? 'Null': 'Seat Numbers: '+snapshot.data![idx].seat_number!),
                             subtitle:  Text(snapshot.data![idx].seat_class == null ? 'Null': 'Seat Class: '+snapshot.data![idx].seat_class!),
 
                           ),
                         );
                       },
-                      // children: [
-                      // Center(
-                      // child: ListTile(
-                      // title: Text(snapshot.data['title']),
-                      // ),
-                      // );
-                      //   ]
                     );
                   }),
             ))

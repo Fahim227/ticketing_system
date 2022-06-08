@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:ticketing_system/constraints.dart';
 import 'package:ticketing_system/database/database_helper.dart';
@@ -26,10 +27,12 @@ class CreateEvent extends StatelessWidget {
   int? total_available_reguler_seat = 2;
   int? total_available_vip_seat = 2;
   int? vip_seat_price = 2;
+  String? vipSeats = '';
+  String? regulerSeats = '';
   int? reguler_seat_price = 2;
   int? total_vip_seat = 2;
   int? total_reguler_seat = 2;
-
+  TextEditingController? titleController,venueContorller,dateController,timeController,durationController,regulerSeatController,regulerPriceController,vipSeatController,VIPSeatNumber,RegulerSeatNumber,vipPriceController;
 
   void _createDB() async {
     DBHelper = await DatabaseHelper.instance;
@@ -49,13 +52,24 @@ class CreateEvent extends StatelessWidget {
         total_vip_seat: total_vip_seat,
         total_reguler_seat: total_reguler_seat);
 
-    int id = await DatabaseHelper.instance.createEvent(event);
+    // int id = await DatabaseHelper.instance.createEvent(event);
     print('Event ID: $id');
   }
 
 
   @override
   Widget build(BuildContext context) {
+    titleController = TextEditingController();
+    venueContorller = TextEditingController();
+    dateController = TextEditingController();
+    timeController = TextEditingController();
+    regulerSeatController = TextEditingController();
+    regulerPriceController = TextEditingController();
+    vipSeatController = TextEditingController();
+    vipPriceController = TextEditingController();
+    durationController = TextEditingController();
+    VIPSeatNumber = TextEditingController();
+    RegulerSeatNumber = TextEditingController();
     return Scaffold(
       appBar: AppBar(title: Text('Create An Event'),),
       body: SingleChildScrollView(
@@ -64,6 +78,7 @@ class CreateEvent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               TextField(
+                controller: titleController,
                 style: TextStyle(color: Colors.black),
                 onChanged: (value) {
                   title = value;
@@ -74,6 +89,7 @@ class CreateEvent extends StatelessWidget {
                 height: 10.0,
               ),
               TextField(
+                controller: venueContorller,
                 style: TextStyle(color: Colors.black),
                 onChanged: (value) {
                   venue = value;
@@ -84,6 +100,7 @@ class CreateEvent extends StatelessWidget {
                 height: 10.0,
               ),
               TextField(
+                controller: dateController,
                 style: TextStyle(color: Colors.black),
                 onChanged: (value) {
                   event_date = value;
@@ -94,6 +111,7 @@ class CreateEvent extends StatelessWidget {
                 height: 10.0,
               ),
               TextField(
+                controller: timeController,
                 style: TextStyle(color: Colors.black),
                 onChanged: (value) {
                   event_time = value;
@@ -104,6 +122,7 @@ class CreateEvent extends StatelessWidget {
                 height: 10.0,
               ),
               TextField(
+                controller: durationController,
                 style: TextStyle(color: Colors.black),
                 onChanged: (value) {
                   duration = value;
@@ -134,6 +153,7 @@ class CreateEvent extends StatelessWidget {
                 height: 10.0,
               ),
               TextField(
+                controller: regulerSeatController,
                 style: TextStyle(color: Colors.black),
                 onChanged: (value) {
                   total_reguler_seat = int.parse(value);
@@ -144,6 +164,7 @@ class CreateEvent extends StatelessWidget {
                   height: 10.0,
               ),
               TextField(
+                controller: regulerPriceController,
                 style: TextStyle(color: Colors.black),
                 onChanged: (value) {
                   reguler_seat_price = int.parse(value);
@@ -154,6 +175,7 @@ class CreateEvent extends StatelessWidget {
                 height: 10.0,
               ),
               TextField(
+                controller: vipSeatController,
                 style: TextStyle(color: Colors.black),
                 onChanged: (value) {
                   //Do something with the user input.
@@ -167,6 +189,7 @@ class CreateEvent extends StatelessWidget {
                 height: 10.0,
               ),
               TextField(
+                controller: vipPriceController,
                 style: TextStyle(color: Colors.black),
                 onChanged: (value) {
                   //Do something with the user input.
@@ -180,6 +203,33 @@ class CreateEvent extends StatelessWidget {
                 height: 20,
               ),
 
+              TextField(
+                controller: VIPSeatNumber,
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) {
+                  //Do something with the user input.
+                  vipSeats = value;
+
+                },
+                decoration:
+                kInputDecorations.copyWith(hintText: "Enter VIPSeatNumbers using ',' in between"),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+
+              TextField(
+                controller: RegulerSeatNumber,
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) {
+                  //Do something with the user input.
+                  regulerSeats = value;
+
+                },
+                decoration:
+                kInputDecorations.copyWith(hintText: "Enter RegulerSeatNumbers using ',' in between"),
+              ),
+
               RoundedButton(
                   title: 'Create Event',
                   color: Colors.lightBlue,
@@ -191,8 +241,65 @@ class CreateEvent extends StatelessWidget {
                     print(event.total_available_reguler_seat);
                     print(event.total_available_vip_seat);
                     event.is_approved = 0;
-                    int event_id = await DatabaseHelper.instance.createEvent(event);
+                    int event_id = await DatabaseHelper.instance.createEvent(event,vipSeats!,regulerSeats!);
                     print(event_id);
+                    if(event_id > 0){
+                      var fToast = FToast();
+                      fToast.init(context);
+                      fToast.showToast(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25.0),
+                            color: Colors.greenAccent,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.done),
+                              SizedBox(
+                                width: 12.0,
+                              ),
+                              Text("Event Created"),
+                            ],
+                          ),),
+                        gravity: ToastGravity.BOTTOM,
+                        toastDuration: Duration(seconds: 2),
+                      );
+                    }
+                    else{
+                      var fToast = FToast();
+                      fToast.init(context);
+                      fToast.showToast(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25.0),
+                            color: Colors.redAccent,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.not_interested),
+                              SizedBox(
+                                width: 12.0,
+                              ),
+                              Text("Failed To Create Event"),
+                            ],
+                          ),),
+                        gravity: ToastGravity.BOTTOM,
+                        toastDuration: Duration(seconds: 2),
+                      );
+                    }
+                    titleController!.clear();
+                    venueContorller!.clear();
+                    dateController!.clear();
+                    timeController!.clear();
+                    regulerSeatController!.clear();
+                    regulerPriceController!.clear();
+                    vipSeatController!.clear();
+                    vipPriceController!.clear();
+                    durationController!.clear();
                   }),
             ]),
       ),
