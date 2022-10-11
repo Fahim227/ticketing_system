@@ -23,6 +23,7 @@ class EventDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(event.total_available_reguler_seat);
     return Scaffold(
       appBar: AppBar(title: Text('EventDetails'),),
       body: Column(

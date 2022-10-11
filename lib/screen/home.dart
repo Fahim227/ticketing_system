@@ -38,12 +38,6 @@ class _HomeState extends State<Home> {
   int? total_reguler_seat = 2;
 
 
-  void _createDB() async {
-    DBHelper = await DatabaseHelper.instance;
-    _database = await DBHelper!.database;
-    print(await _database!.getVersion());
-  }
-
 
 
   void insertEvent() async {
@@ -94,7 +88,8 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    insertEvent();
+
+    // insertEvent();
   }
 
 

@@ -40,8 +40,9 @@ class DatabaseHelper {
   Future<Database> _initDB() async {
     String directoryPath = await getDatabasesPath();
     String path = join(directoryPath, DatabaseHelper.dbName);
-    return await openDatabase(path, version: 17, onCreate: _createDatabase,onUpgrade:(Database? db, int oldVersion, int newVersion) {
+    return await openDatabase(path, version:12, onCreate: _createDatabase,onUpgrade:(Database? db, int oldVersion, int newVersion) {
       print(newVersion);
+      print(oldVersion);
       if (oldVersion < newVersion) {
         // you can execute drop table and create table
         _addColumnInEventTable(db!);
@@ -50,6 +51,7 @@ class DatabaseHelper {
   }
 
   void _addColumnInEventTable(Database? db) async {
+    print("Updating...");
     String addVip = 'ALTER TABLE ${EventTableFields.tableName!} ADD ${EventTableFields.vip_seat_price} INTEGER;';
     String addReguler= 'ALTER TABLE ${EventTableFields.tableName!} ADD ${EventTableFields.reguler_seat_price} INTEGER;';
     String addTotalAvailableRegulerSeat= 'ALTER TABLE ${EventTableFields.tableName!} ADD ${EventTableFields.total_available_reguler_seat} INTEGER;';
@@ -57,27 +59,43 @@ class DatabaseHelper {
     String addTotalVipSeat= 'ALTER TABLE ${EventTableFields.tableName!} ADD ${EventTableFields.total_vip_seat} INTEGER;';
     String addTotalRegulerSeat= 'ALTER TABLE ${EventTableFields.tableName!} ADD ${EventTableFields.total_reguler_seat} INTEGER;';
     String deleteTotaAvailableSeat= "ALTER TABLE  Event DELETE COLUMN 'total_available_seat';";
+    String dropEventTable = "DROP TABLE Event;";
     String createEvent = "CREATE TABLE  ${EventTableFields.tableName}"+
         ' (${EventTableFields.id}  INTEGER PRIMARY KEY, ${EventTableFields.title} TEXT,'+
         ' ${EventTableFields.venue} TEXT, ${EventTableFields.event_date} TEXT,'+
         ' ${EventTableFields.event_time} TEXT, ${EventTableFields.duration} TEXT,'+
         '${EventTableFields.total_reguler_seat} INTEGER, '+
+        '${EventTableFields.total_vip_seat} INTEGER, '+
         '${EventTableFields.total_available_seat} INTEGER,'+
         '${EventTableFields.total_available_reguler_seat} INTEGER,'+
         '${EventTableFields.total_available_vip_seat} INTEGER,'+
         '${EventTableFields.user_id} INTEGER,'+
         '${EventTableFields.vip_seat_price} INTEGER,'+
         '${EventTableFields.reguler_seat_price} INTEGER,'+
+        '${EventTableFields.is_approved} INTEGER,'+
         ' FOREIGN KEY (${EventTableFields.user_id}) REFERENCES ${UserTableFields.tableName}(${UserTableFields.id}));';
     String addStatus = 'ALTER TABLE ${EventTableFields.tableName!} ADD ${EventTableFields.is_approved} INTEGER;';
-    String renameTable = 'ALTER TABLE User RENAME TO ${CustomerFields.tableName};';
+    // String renameTable = 'ALTER TABLE User RENAME TO ${CustomerFields.tableName};';
     String addNumberOfTickets =  'ALTER TABLE ${TicketTableFields.tableName!} ADD ${TicketTableFields.number_of_tickets} INTEGER;';
     String addPasswordToUser =  'ALTER TABLE ${UserTableFields.tableName!} ADD ${UserTableFields.password} TEXT;';
     String addPasswordToCustomer =  'ALTER TABLE ${CustomerFields.tableName!} ADD ${CustomerFields.password} TEXT;';
     String addSeatTable = 'CREATE TABLE ${SeatNumberFields.tableName!} (${SeatNumberFields.id} INTEGER PRIMARY KEY, ${SeatNumberFields.event_id} INTEGER, ${SeatNumberFields.seat_class} TEXT,${SeatNumberFields.seat_number} TEXT, ${SeatNumberFields.status} INTEGER,  FOREIGN KEY (${SeatNumberFields.event_id}) REFERENCES ${EventTableFields.tableName}(${EventTableFields.id}) )';
     print(addSeatTable);
 
-    await db!.execute(addSeatTable);
+    // await db!.execute(addTotalVipSeat);
+    // await db!.execute(addReguler);
+    // await db!.execute(addTotalAvailableRegulerSeat);
+    // await db!.execute(addTotalAvailableVIPSeat);
+    // await db!.execute(addTotalRegulerSeat);
+    // await db!.execute(deleteTotaAvailableSeat);
+    await db!.execute(dropEventTable);
+    await db!.execute(createEvent);
+    // await db!.execute(addStatus);
+    // await db!.execute(renameTable);
+    // await db!.execute(addNumberOfTickets);
+    // await db!.execute(addPasswordToUser);
+    // await db!.execute(addPasswordToCustomer);
+    // await db!.execute(addSeatTable);
 
 
     // await db!.rawQuery(addReguler);
